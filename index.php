@@ -1,27 +1,19 @@
 <?php
-// Отключаем кэширование, чтобы изменения применялись мгновенно при тестах
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 
-// Имитируем чтение данных из вашей будущей Базы Данных
 $formula_from_db = '<p>Исходные данные из БД. Нажмите кнопку <span style="color:orange">√</span> для создания многоуровневой формулы:</p>';
 
-// Перехватываем сохранение формы (POST запрос)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $editor_content = $_POST['answerEditor'] ?? '';
     $formula_from_db = $editor_content;
-    // Здесь будет ваш будущий код записи в БД (PDO / mysqli)
 }
 
-/**
- * Функция-прокси: PHP скачивает код скрипта с оригинального CDN сервера.
- * Так как Vercel находится вне блокировок, он скачает файлы за миллисекунды.
- */
 function fetchExternalScript($url) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Разрешаем редиректы (важно для tiny.cloud)
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); 
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     $output = curl_exec($ch);
@@ -29,7 +21,7 @@ function fetchExternalScript($url) {
     return $output;
 }
 
-// Сервер Vercel скачивает скрипты в свою память
+// ВНИМАНИЕ: Сюда возвращены ПОЛНЫЕ пути к JS-файлам!
 $tinymce_core_code = fetchExternalScript('https://cloudflare.com');
 $mathtype_plugin_code = fetchExternalScript('https://unpkg.com');
 ?>
@@ -44,12 +36,12 @@ $mathtype_plugin_code = fetchExternalScript('https://unpkg.com');
         .btn-submit { margin-top: 15px; padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 
-    <!-- ВСТРАИВАЕМ КОД ТЕКСТОМ: Ваш браузер получит этот код напрямую с домена Vercel! -->
+    <!-- Встраиваем код TinyMCE напрямую с вашего сервера Vercel -->
     <script>
         <?php echo $tinymce_core_code; ?>
     </script>
 
-    <!-- Скрипт-визуализатор от Wiris -->
+    <!-- Полный и правильный адрес скрипта-визуализатора от Wiris -->
     <script src="https://wiris.net"></script>
 </head>
 <body>
@@ -66,8 +58,7 @@ $mathtype_plugin_code = fetchExternalScript('https://unpkg.com');
 </div>
 
 <script>
-    // Регистрируем локально подгруженный код плагина MathType в глобальной памяти TinyMCE.
-    // Это полностью избавляет нас от ошибок Cross-Origin (CORS) и блокировок external_plugins!
+    // Регистрируем локально подгруженный код плагина MathType
     tinymce.PluginManager.add('tiny_mce_wiris', function(editor, url) {
         <?php echo $mathtype_plugin_code; ?>
     });
@@ -77,11 +68,9 @@ $mathtype_plugin_code = fetchExternalScript('https://unpkg.com');
         selector: '#answerEditor',
         height: 280,
         menubar: false,
-        plugins: ['lists', 'advlist', 'wordcount'], 
         
-        // Так как код плагина мы зарегистрировали строкой выше через PluginManager.add,
-        // нам больше НЕ НУЖЕН параметр external_plugins! Просто активируем его:
-        forced_plugins: ['tiny_mce_wiris'],
+        // В TinyMCE встроенный локальный плагин нужно просто объявить здесь
+        plugins: ['lists', 'advlist', 'wordcount', 'tiny_mce_wiris'], 
         
         // Выводим оригинальную оранжевую кнопку MathType
         toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor',
