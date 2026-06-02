@@ -3,63 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест MathType (Wiris) в TinyMCE 7</title>
+    <title>Тест MathType в TinyMCE 7</title>
 
-    <!-- 1. ПОДКЛЮЧАЕМ САМУЮ НОВУЮ ВЕРСИЮ TINYMCE 7 (через стабильный CDN Cloudflare) -->
-    <script src="https://cloudflare.com" referrerpolicy="origin"></script>
+    <!-- 1. ИСПОЛЬЗУЕМ ОФИЦИАЛЬНОЕ ОБЛАКО TINYMCE КЛЮЧ NO-API (Для тестов полностью бесплатно) -->
+    <script src="https://tiny.cloud" referrerpolicy="origin" crossorigin="anonymous"></script>
 
-    <!-- 2. Скрипт-визуализатор для корректного рендеринга формул от Wiris -->
+    <!-- 2. Скрипт-визуализатор для корректного отображения формул -->
     <script src="https://wiris.net"></script>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f4f6f9;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        h2 { color: #333; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>Тестирование редактора формул на TinyMCE 7 (GitHub Pages)</h2>
-    <p>После полной загрузки страницы на панели появится оранжевая кнопка <strong>√</strong>.</p>
+    <p>Если загрузка прошла успешно, на панели отобразится оранжевый значок корня.</p>
     
-    <!-- Поле ввода -->
     <textarea id="answerEditor">
-        <p>Пример текста. Нажмите на панели кнопку MathType (квадратный корень), чтобы открыть окно создания формул:</p>
+        <p>Нажмите на панели кнопку MathType (квадратный корень), чтобы открыть окно создания формул:</p>
     </textarea>
 </div>
 
 <script>
-    // Инициализация TinyMCE 7
     tinymce.init({
         selector: '#answerEditor',
         height: 280,
         menubar: false,
-        
-        // Встроенные базовые плагины TinyMCE 7
         plugins: ['lists', 'advlist', 'wordcount'], 
         
-        // 3. ПОДКЛЮЧАЕМ ОФИЦИАЛЬНЫЙ ПАКЕТ ПЛАГИНА MATHTYPE ДЛЯ TINYMCE 7 (через unpkg)
+        // 3. Подключаем официальную облачную интеграцию плагина MathType
         external_plugins: {
-            'tiny_mce_wiris': 'https://unpkg.com'
+            'tiny_mce_wiris': 'https://www.wiris.net/demo/plugins/tiny_mce/plugin.js'
         },
         
-        // Имя кнопки на панели инструментов остаётся прежним
-        toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor',
+        // Кнопка для вызова окна формул (математика и химия)
+        toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
         
         draggable_modal: true, 
         branding: false,
@@ -75,3 +57,4 @@
 
 </body>
 </html>
+
