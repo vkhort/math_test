@@ -3,45 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест MathType в TinyMCE 7</title>
+    <title>Оригинальный пример MathType в TinyMCE 6</title>
 
-    <!-- 1. ИСПОЛЬЗУЕМ ОФИЦИАЛЬНОЕ ОБЛАКО TINYMCE КЛЮЧ NO-API (Для тестов полностью бесплатно) -->
-    <script src="https://tiny.cloud" referrerpolicy="origin" crossorigin="anonymous"></script>
+    <!-- 1. ИСПОЛЬЗУЕМ СЕРВЕР JSDELIVR: Он не делает редиректов на tiny.cloud и решает проблему CORS -->
+    <script src="https://jsdelivr.net" referrerpolicy="origin"></script>
 
-    <!-- 2. Скрипт-визуализатор для корректного отображения формул -->
+    <!-- 2. Скрипт-визуализатор для рендеринга формул от Wiris -->
     <script src="https://wiris.net"></script>
 
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        h2 { color: #333; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Тестирование редактора формул на TinyMCE 7 (GitHub Pages)</h2>
-    <p>Если загрузка прошла успешно, на панели отобразится оранжевый значок корня.</p>
+    <h2>Официальная интеграция MathType (WYSIWYG)</h2>
+    <p>Нажмите на оранжевую кнопку с корнем, чтобы открыть визуальное окно ввода формул.</p>
     
     <textarea id="answerEditor">
-        <p>Нажмите на панели кнопку MathType (квадратный корень), чтобы открыть окно создания формул:</p>
+        <p>Пример текста для редактирования поля базы данных...</p>
     </textarea>
 </div>
 
 <script>
     tinymce.init({
         selector: '#answerEditor',
-        height: 280,
+        height: 300,
         menubar: false,
         plugins: ['lists', 'advlist', 'wordcount'], 
         
-        // 3. Подключаем официальную облачную интеграцию плагина MathType
+        // 3. Используем официальную изолированную сборку MathType.
+        // Она содержит все иконки внутри себя и не обращается к wiris.net напрямую при инициализации!
         external_plugins: {
-            'tiny_mce_wiris': 'https://www.wiris.net/demo/plugins/tiny_mce/plugin.js'
+            'tiny_mce_wiris': 'https://jsdelivr.net'
         },
         
-        // Кнопка для вызова окна формул (математика и химия)
-        toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
+        // Точное системное имя кнопки для вызова оригинального окна MathType
+        toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor',
         
         draggable_modal: true, 
         branding: false,
@@ -57,4 +57,5 @@
 
 </body>
 </html>
+
 
