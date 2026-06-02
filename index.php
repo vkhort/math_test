@@ -1,5 +1,4 @@
 <?php
-// Отключаем кэширование, чтобы страница обновлялась мгновенно при тестах
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 
@@ -9,28 +8,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $editor_content = $_POST['answerEditor'] ?? '';
     $formula_from_db = $editor_content;
 }
+
+/**
+ * Функция-прокси для ядра TinyMCE.
+ * Vercel находится вне блокировок, поэтому он скачает ядро с unpkg за миллисекунды.
+ */
+function fetchTinyMCE($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); 
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    return $output;
+}
+
+$tinymce_core_code = fetchTinyMCE('https://unpkg.com');
+
+// А код плагина MathType мы теперь читаем ЛОКАЛЬНО из вашего файла tinymath.js!
+$mathtype_plugin_code = @file_get_contents(__DIR__ . '/tinymath.js');
 ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Официальная облачная интеграция MathType</title>
+    <title>PHP + Vercel Автономная Сборка</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background: #f4f6f9; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn-submit { margin-top: 15px; padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 
-    <!-- 1. ПОДКЛЮЧАЕМ TINYMCE 6: Используем официальный открытый сервер cdn.tiny.cloud -->
-    <script src="https://tiny.cloud" referrerpolicy="origin" crossorigin="anonymous"></script>
+    <!-- Встраиваем код TinyMCE напрямую с вашего сервера Vercel -->
+    <script>
+        <?php echo $tinymce_core_code; ?>
+    </script>
 
-    <!-- 2. ПОДКЛЮЧАЕМ ВИЗУАЛИЗАТОР ФОРМУЛ: Официальный стабильный адрес от Wiris -->
+    <!-- Скрипт-визуализатор от Wiris -->
     <script src="https://wiris.net"></script>
 </head>
 <body>
 
 <div class="container">
-    <h2>Редактирование поля базы данных (Официальное Облако)</h2>
+    <h2>Редактирование поля базы данных (Vercel Автономный)</h2>
     
     <form method="POST" action="">
         <textarea id="answerEditor" name="answerEditor">
@@ -41,21 +63,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-    // Инициализация редактора
+    // Регистрируем локально подгруженный из tinymath.js код плагина в глобальной памяти TinyMCE
+    tinymce.PluginManager.add('tiny_mce_wiris', function(editor, url) {
+        <?php echo $mathtype_plugin_code; ?>
+    });
+
+    // Запуск редактора
     tinymce.init({
         selector: '#answerEditor',
         height: 280,
         menubar: false,
-        plugins: ['lists', 'advlist', 'wordcount'], 
-        
-        // 3. ОБЛАЧНЫЙ ПЛАГИН: Подключаем оригинальный скрипт Wiris, созданный для внешних интеграций
-        external_plugins: {
-            'tiny_mce_wiris': 'https://www.wiris.net/demo/plugins/tiny_mce/plugin.js'
-        },
-        
-        // Системные имена кнопок для вызова оригинального окна MathType
-        toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
-        
+        plugins: ['lists', 'advlist', 'wordcount', 'tiny_mce_wiris'], 
+        toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor',
         draggable_modal: true, 
         branding: false,
         statusbar: true,
