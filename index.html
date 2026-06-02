@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест MathType (Wiris) в TinyMCE 7</title>
+
+    <!-- 1. ПОДКЛЮЧАЕМ САМУЮ НОВУЮ ВЕРСИЮ TINYMCE 7 (через стабильный CDN Cloudflare) -->
+    <script src="https://cloudflare.com" referrerpolicy="origin"></script>
+
+    <!-- 2. Скрипт-визуализатор для корректного рендеринга формул от Wiris -->
+    <script src="https://wiris.net"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f6f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Тестирование редактора формул на TinyMCE 7 (GitHub Pages)</h2>
+    <p>После полной загрузки страницы на панели появится оранжевая кнопка <strong>√</strong>.</p>
+    
+    <!-- Поле ввода -->
+    <textarea id="answerEditor">
+        <p>Пример текста. Нажмите на панели кнопку MathType (квадратный корень), чтобы открыть окно создания формул:</p>
+    </textarea>
+</div>
+
+<script>
+    // Инициализация TinyMCE 7
+    tinymce.init({
+        selector: '#answerEditor',
+        height: 280,
+        menubar: false,
+        
+        // Встроенные базовые плагины TinyMCE 7
+        plugins: ['lists', 'advlist', 'wordcount'], 
+        
+        // 3. ПОДКЛЮЧАЕМ ОФИЦИАЛЬНЫЙ ПАКЕТ ПЛАГИНА MATHTYPE ДЛЯ TINYMCE 7 (через unpkg)
+        external_plugins: {
+            'tiny_mce_wiris': 'https://unpkg.com'
+        },
+        
+        // Имя кнопки на панели инструментов остаётся прежним
+        toolbar: 'undo redo | bold italic | bullist numlist | tiny_mce_wiris_formulaEditor',
+        
+        draggable_modal: true, 
+        branding: false,
+        statusbar: true,
+        
+        setup: function(editor) {
+            editor.on('change', function() {
+                editor.save(); 
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
